@@ -11,27 +11,35 @@ const app = express();
 
 // Middleware
 // CORS configuration - allow all origins in development
+// const corsOptions = {
+//   origin: function (origin, callback) {
+//     // Allow requests with no origin (like mobile apps or curl requests)
+//     if (!origin) return callback(null, true);
+    
+//     // In development, allow localhost
+//     if (process.env.NODE_ENV !== 'production') {
+//       return callback(null, true);
+//     }
+    
+//     // In production, check against allowed origins
+//     const allowedOrigins = process.env.FRONTEND_URL 
+//       ? [process.env.FRONTEND_URL] 
+//       : ['http://localhost:3000'];
+    
+//     if (allowedOrigins.indexOf(origin) !== -1) {
+//       callback(null, true);
+//     } else {
+//       callback(new Error('Not allowed by CORS'));
+//     }
+//   },
+//   credentials: true,
+//   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+//   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+// };
+
+// CORS configuration - allow your deployed frontend
 const corsOptions = {
-  origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps or curl requests)
-    if (!origin) return callback(null, true);
-    
-    // In development, allow localhost
-    if (process.env.NODE_ENV !== 'production') {
-      return callback(null, true);
-    }
-    
-    // In production, check against allowed origins
-    const allowedOrigins = process.env.FRONTEND_URL 
-      ? [process.env.FRONTEND_URL] 
-      : ['http://localhost:3000'];
-    
-    if (allowedOrigins.indexOf(origin) !== -1) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
+  origin: 'https://employee-attendance-frontend.onrender.com', // replace with your frontend URL
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
