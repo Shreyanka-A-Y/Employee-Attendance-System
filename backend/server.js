@@ -57,6 +57,7 @@ app.use('/api/dashboard', require('./routes/dashboard'));
 app.use('/api/users', require('./routes/users'));
 app.use('/api/leave', require('./routes/leave'));
 app.use('/api/calendar', require('./routes/calendar'));
+app.use('/api/notifications', require('./routes/notifications'));
 
 // Log registered calendar routes
 console.log('Calendar routes registered:');

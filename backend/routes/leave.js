@@ -5,6 +5,7 @@ const { auth } = require('../middleware/auth');
 const Leave = require('../models/Leave');
 const Attendance = require('../models/Attendance');
 const User = require('../models/User');
+const { notifyLeaveApplication, notifyLeaveDecision } = require('../utils/notifications');
 
 console.log('Leave routes module loaded');
 
@@ -104,6 +105,9 @@ router.post(
         return res.status(400).json({ message: 'End date must be after start date' });
       }
 
+      // Get employee name for notification
+      const employee = await User.findById(req.user._id);
+
       // Create leave request
       const leave = await Leave.create({
         userId: req.user._id,
@@ -113,6 +117,16 @@ router.post(
         endDate: end,
         document: document || null,
         status: 'pending',
+      });
+
+      // Notify managers about leave application
+      await notifyLeaveApplication({
+        leaveId: leave._id,
+        userId: req.user._id,
+        employeeName: employee.name,
+        leaveType,
+        startDate: start,
+        endDate: end,
       });
 
       res.status(201).json({
@@ -253,6 +267,18 @@ router.post('/:id/approve', auth, async (req, res) => {
       leave.leaveType
     );
 
+    // Notify employee about approval
+    await notifyLeaveDecision({
+      leaveId: leave._id,
+      userId: leave.userId._id,
+      managerId: req.user._id,
+      status: 'approved',
+      leaveType: leave.leaveType,
+      managerComment: leave.managerComment,
+      startDate: leave.startDate,
+      endDate: leave.endDate,
+    });
+
     res.json({
       message: 'Leave request approved successfully',
       leave: {
@@ -292,6 +318,21 @@ router.post('/:id/reject', auth, async (req, res) => {
     leave.approvedAt = new Date();
     leave.managerComment = req.body.comment || '';
     await leave.save();
+
+    // Populate userId for notification
+    await leave.populate('userId');
+
+    // Notify employee about rejection
+    await notifyLeaveDecision({
+      leaveId: leave._id,
+      userId: leave.userId._id,
+      managerId: req.user._id,
+      status: 'rejected',
+      leaveType: leave.leaveType,
+      managerComment: leave.managerComment,
+      startDate: leave.startDate,
+      endDate: leave.endDate,
+    });
 
     res.json({
       message: 'Leave request rejected',

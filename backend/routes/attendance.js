@@ -175,6 +175,139 @@ router.get('/today', auth, async (req, res) => {
   }
 });
 
+// @route   GET /api/attendance/date
+// @desc    Get detailed attendance for a specific date
+// @access  Private
+router.get('/date', auth, async (req, res) => {
+  try {
+    console.log('GET /api/attendance/date - Route hit');
+    console.log('Query params:', req.query);
+    console.log('User:', req.user?.name, req.user?.role);
+    
+    const { date, userId } = req.query;
+
+    if (!date) {
+      console.error('Date parameter missing');
+      return res.status(400).json({ message: 'Date is required' });
+    }
+
+    // Determine target user ID
+    let targetUserId = req.user._id;
+    if (userId && req.user.role === 'manager') {
+      // Manager can view any employee's attendance
+      targetUserId = userId;
+    } else if (userId && req.user.role !== 'manager') {
+      // Employee can only view their own
+      return res.status(403).json({ message: 'Access denied' });
+    }
+
+    // Parse and normalize date
+    const targetDate = new Date(date);
+    targetDate.setHours(0, 0, 0, 0);
+    const { start, end } = getDayBounds(targetDate);
+
+    // Get attendance record
+    const attendance = await Attendance.findOne({
+      userId: targetUserId,
+      date: { $gte: start, $lte: end },
+    })
+      .populate('userId', 'name email employeeId department')
+      .lean();
+
+    // Get leave record if exists
+    const Leave = require('../models/Leave');
+    const leave = await Leave.findOne({
+      userId: targetUserId,
+      startDate: { $lte: end },
+      endDate: { $gte: start },
+    }).lean();
+
+    // Build response
+    if (!attendance && !leave) {
+      return res.json({
+        date: date,
+        hasRecord: false,
+        message: 'No attendance record available for this day.',
+      });
+    }
+
+    // Determine status
+    let status = 'no-record';
+    if (attendance) {
+      if (attendance.status === 'leave') {
+        status = 'leave-approved';
+      } else {
+        status = attendance.status;
+      }
+    } else if (leave) {
+      if (leave.status === 'approved') {
+        status = 'leave-approved';
+      } else if (leave.status === 'pending') {
+        status = 'leave-pending';
+      }
+    }
+
+    // Calculate late/early info
+    let lateInfo = null;
+    if (attendance && attendance.checkInTime) {
+      const checkInDate = new Date(attendance.checkInTime);
+      const expectedTime = new Date(targetDate);
+      expectedTime.setHours(9, 30, 0, 0); // 9:30 AM threshold
+
+      if (checkInDate > expectedTime) {
+        const minutesLate = Math.floor((checkInDate - expectedTime) / (1000 * 60));
+        lateInfo = {
+          isLate: true,
+          minutesLate: minutesLate,
+          checkInTime: attendance.checkInTime,
+          expectedTime: expectedTime,
+        };
+      } else {
+        lateInfo = {
+          isLate: false,
+          checkInTime: attendance.checkInTime,
+          expectedTime: expectedTime,
+        };
+      }
+    }
+
+    const response = {
+      date: date,
+      hasRecord: true,
+      status: status,
+      employee: attendance?.userId ? {
+        id: attendance.userId._id,
+        name: attendance.userId.name,
+        employeeId: attendance.userId.employeeId,
+        department: attendance.userId.department,
+      } : null,
+      attendance: attendance ? {
+        checkInTime: attendance.checkInTime,
+        checkOutTime: attendance.checkOutTime,
+        totalHours: attendance.totalHours || 0,
+        status: attendance.status,
+        leaveType: attendance.leaveType || null,
+      } : null,
+      leave: leave ? {
+        leaveType: leave.leaveType,
+        reason: leave.reason,
+        status: leave.status,
+        startDate: leave.startDate,
+        endDate: leave.endDate,
+        managerComment: leave.managerComment || null,
+        approvedBy: leave.approvedBy || null,
+        approvedAt: leave.approvedAt || null,
+      } : null,
+      lateInfo: lateInfo,
+    };
+
+    res.json(response);
+  } catch (error) {
+    console.error('Get attendance by date error:', error);
+    res.status(500).json({ message: error.message || 'Server error' });
+  }
+});
+
 // @route   GET /api/attendance/my-history
 // @desc    Get employee's attendance history
 // @access  Private (Employee)
