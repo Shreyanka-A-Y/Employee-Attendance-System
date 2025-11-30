@@ -37,6 +37,25 @@ export const getTodayStatus = createAsyncThunk('attendance/getTodayStatus', asyn
   }
 });
 
+export const getAttendanceByDate = createAsyncThunk(
+  'attendance/getByDate',
+  async ({ date, userId }, { rejectWithValue }) => {
+    try {
+      const params = { date };
+      if (userId) params.userId = userId;
+      console.log('API Request: GET /api/attendance/date with params:', params);
+      const response = await api.get('attendance/date', { params });
+      console.log('API Response:', response.data);
+      return response.data;
+    } catch (error) {
+      console.error('Get attendance by date error:', error);
+      console.error('Error response:', error.response?.data);
+      console.error('Error status:', error.response?.status);
+      return rejectWithValue(error.response?.data?.message || 'Failed to get attendance details');
+    }
+  }
+);
+
 export const getMyHistory = createAsyncThunk('attendance/getMyHistory', async (params, { rejectWithValue }) => {
   try {
     const response = await api.get('attendance/my-history', { params });
@@ -133,12 +152,20 @@ const attendanceSlice = createSlice({
     teamSummary: null,
     todayStatusAll: null,
     departments: [],
+    dateDetails: null, // Cached attendance details for clicked date
+    dateDetailsCache: {}, // Cache by date string
     loading: false,
     error: null,
   },
   reducers: {
     clearError: (state) => {
       state.error = null;
+    },
+    clearDateDetails: (state) => {
+      state.dateDetails = null;
+    },
+    clearDateDetailsCache: (state) => {
+      state.dateDetailsCache = {};
     },
   },
   extraReducers: (builder) => {
@@ -225,5 +252,5 @@ const attendanceSlice = createSlice({
   },
 });
 
-export const { clearError } = attendanceSlice.actions;
+export const { clearError, clearDateDetails, clearDateDetailsCache, setDateDetailsFromCache } = attendanceSlice.actions;
 export default attendanceSlice.reducer;

@@ -7,7 +7,9 @@ import {
   User,
   Settings,
   FileText,
+  MessageSquare,
 } from 'lucide-react';
+import NotificationBell from './NotificationBell';
 import './TopBar.css';
 
 // Route to page name and icon mapping
@@ -21,6 +23,7 @@ const routeMap = {
   '/manager/attendance': { name: 'All Attendance', icon: Calendar },
   '/manager/calendar': { name: 'Calendar', icon: History },
   '/manager/leaves': { name: 'Leave Requests', icon: FileText },
+  '/manager/broadcast': { name: 'Send Notice', icon: MessageSquare },
   '/manager/reports': { name: 'Reports', icon: FileText },
 };
 
@@ -54,12 +57,13 @@ const TopBar = ({ isSidebarCollapsed, isMobile }) => {
           </div>
         </div>
 
-        {/* Right side: Current Page Name */}
+        {/* Right side: Current Page Name + Notifications */}
         <div className="topbar-right">
           <div className="topbar-page-info">
             <PageIcon size={20} className="topbar-page-icon" />
             <span className="topbar-page-name">{currentPage.name}</span>
           </div>
+          <NotificationBell />
         </div>
       </div>
     </header>

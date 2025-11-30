@@ -20,6 +20,7 @@ import AllAttendance from './pages/manager/AllAttendance';
 import TeamCalendar from './pages/manager/TeamCalendar';
 import Reports from './pages/manager/Reports';
 import LeaveRequests from './pages/manager/LeaveRequests';
+import BroadcastNotice from './pages/manager/BroadcastNotice';
 
 // Layout
 import Layout from './components/Layout';
@@ -127,6 +128,16 @@ function App() {
           <PrivateRoute requiredRole="manager">
             <Layout>
               <LeaveRequests />
+            </Layout>
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/manager/broadcast"
+        element={
+          <PrivateRoute requiredRole="manager">
+            <Layout>
+              <BroadcastNotice />
             </Layout>
           </PrivateRoute>
         }

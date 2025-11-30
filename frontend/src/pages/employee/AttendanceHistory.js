@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { getMyHistory, getMySummary } from '../../store/slices/attendanceSlice';
 import { getCalendarMonth } from '../../store/slices/calendarSlice';
+import AttendanceDetailsModal from '../../components/AttendanceDetailsModal';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 import './AttendanceHistory.css';
@@ -17,6 +18,8 @@ const AttendanceHistory = () => {
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   const [currentPage, setCurrentPage] = useState(1);
   const [calendarDate, setCalendarDate] = useState(new Date());
+  const [selectedDate, setSelectedDate] = useState(null);
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
   const recordsPerPage = 10;
 
   useEffect(() => {
@@ -45,6 +48,17 @@ const AttendanceHistory = () => {
     setSelectedMonth(new Date().getMonth() + 1);
     setSelectedYear(new Date().getFullYear());
     setCurrentPage(1);
+  };
+
+  const handleDateClick = (date) => {
+    const dateStr = date.toISOString().split('T')[0];
+    setSelectedDate(dateStr);
+    setShowDetailsModal(true);
+  };
+
+  const handleCalendarChange = (date) => {
+    setCalendarDate(date);
+    // Don't close modal on month change, just update calendar
   };
 
   // Status color mapping
@@ -134,10 +148,6 @@ const AttendanceHistory = () => {
     }
 
     return null;
-  };
-
-  const handleCalendarChange = (date) => {
-    setCalendarDate(date);
   };
 
   // Pagination logic
@@ -408,6 +418,7 @@ const AttendanceHistory = () => {
                 tileClassName={tileClassName}
                 tileContent={tileContent}
                 className="attendance-calendar"
+                onClickDay={handleDateClick}
                 onActiveStartDateChange={({ activeStartDate }) => {
                   if (activeStartDate) {
                     setCalendarDate(activeStartDate);
@@ -489,6 +500,16 @@ const AttendanceHistory = () => {
             </div>
           </div>
         )}
+
+        {/* Attendance Details Modal */}
+        <AttendanceDetailsModal
+          isOpen={showDetailsModal}
+          onClose={() => {
+            setShowDetailsModal(false);
+            setSelectedDate(null);
+          }}
+          date={selectedDate}
+        />
       </div>
     </div>
   );

@@ -5,6 +5,7 @@ import {
   getAllEmployees,
   clearError,
 } from '../../store/slices/calendarSlice';
+import AttendanceDetailsModal from '../../components/AttendanceDetailsModal';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 import './TeamCalendar.css';
@@ -56,8 +57,12 @@ const TeamCalendar = () => {
   };
 
   const handleDateClick = (date) => {
-    if (!selectedEmployeeId) return;
-    setSelectedDate(date);
+    if (!selectedEmployeeId) {
+      alert('Please select an employee first');
+      return;
+    }
+    const dateStr = date.toISOString().split('T')[0];
+    setSelectedDate(dateStr);
     setShowDetailsModal(true);
   };
 
@@ -152,13 +157,6 @@ const TeamCalendar = () => {
     return null;
   };
 
-  const getSelectedDateData = () => {
-    if (!selectedDate || !employeeCalendar?.calendarData) return null;
-    const dateStr = selectedDate.toISOString().split('T')[0];
-    return employeeCalendar.calendarData.find((item) => item.date === dateStr);
-  };
-
-  const selectedDateData = getSelectedDateData();
   const selectedEmployee = employees.find((emp) => emp._id === selectedEmployeeId);
 
   return (
@@ -276,121 +274,17 @@ const TeamCalendar = () => {
         </div>
       )}
 
-      {/* Date Details Modal */}
-      {showDetailsModal && selectedDate && (
-        <div className="modal-overlay" onClick={() => setShowDetailsModal(false)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <h2>Attendance Details</h2>
-              <button
-                className="modal-close"
-                onClick={() => setShowDetailsModal(false)}
-                aria-label="Close"
-              >
-                ×
-              </button>
-            </div>
-            <div className="modal-body">
-              <div className="detail-date">
-                <strong>Date:</strong> {new Date(selectedDate).toLocaleDateString('en-US', {
-                  weekday: 'long',
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric',
-                })}
-              </div>
-              <div className="detail-status">
-                <strong>Status:</strong>
-                <span className={`status-badge status-${selectedDateData?.status || 'no-record'}`}>
-                  {!selectedDateData || selectedDateData.status === 'no-record' ? 'No Record' :
-                   selectedDateData.status === 'leave-approved' ? 'On Leave (Approved)' :
-                   selectedDateData.status === 'leave-pending' ? 'On Leave (Pending)' :
-                   selectedDateData.status.charAt(0).toUpperCase() + selectedDateData.status.slice(1)}
-                </span>
-              </div>
-
-              {selectedDateData?.attendance && (
-                <div className="detail-section">
-                  <h4>Attendance Information</h4>
-                  <div className="detail-grid">
-                    <div className="detail-item">
-                      <strong>Check In:</strong>
-                      <span>
-                        {selectedDateData.attendance.checkInTime
-                          ? new Date(selectedDateData.attendance.checkInTime).toLocaleTimeString('en-US', {
-                              hour: '2-digit',
-                              minute: '2-digit',
-                            })
-                          : 'Not checked in'}
-                      </span>
-                    </div>
-                    <div className="detail-item">
-                      <strong>Check Out:</strong>
-                      <span>
-                        {selectedDateData.attendance.checkOutTime
-                          ? new Date(selectedDateData.attendance.checkOutTime).toLocaleTimeString('en-US', {
-                              hour: '2-digit',
-                              minute: '2-digit',
-                            })
-                          : 'Not checked out'}
-                      </span>
-                    </div>
-                    <div className="detail-item">
-                      <strong>Total Hours:</strong>
-                      <span>{selectedDateData.attendance.totalHours?.toFixed(2) || '0.00'} hrs</span>
-                    </div>
-                    <div className="detail-item">
-                      <strong>Status:</strong>
-                      <span className={`status-badge status-${selectedDateData.attendance.status}`}>
-                        {selectedDateData.attendance.status}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {selectedDateData?.leave && (
-                <div className="detail-section">
-                  <h4>Leave Information</h4>
-                  <div className="detail-grid">
-                    <div className="detail-item">
-                      <strong>Leave Type:</strong>
-                      <span>{selectedDateData.leave.leaveType}</span>
-                    </div>
-                    <div className="detail-item">
-                      <strong>Status:</strong>
-                      <span className={`status-badge status-${selectedDateData.leave.status}`}>
-                        {selectedDateData.leave.status}
-                      </span>
-                    </div>
-                    <div className="detail-item full-width">
-                      <strong>Reason:</strong>
-                      <p>{selectedDateData.leave.reason}</p>
-                    </div>
-                    {selectedDateData.leave.managerComment && (
-                      <div className="detail-item full-width">
-                        <strong>Manager Comment:</strong>
-                        <p>{selectedDateData.leave.managerComment}</p>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {(!selectedDateData || selectedDateData.status === 'no-record') && (
-                <div className="detail-section">
-                  <p className="no-record-message">No attendance or leave record found for this date.</p>
-                </div>
-              )}
-            </div>
-            <div className="modal-footer">
-              <button className="btn btn-primary" onClick={() => setShowDetailsModal(false)}>
-                Close
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Attendance Details Modal */}
+      <AttendanceDetailsModal
+        isOpen={showDetailsModal}
+        onClose={() => {
+          setShowDetailsModal(false);
+          setSelectedDate(null);
+        }}
+        date={selectedDate}
+        userId={selectedEmployeeId}
+        employeeName={employees.find((e) => e._id === selectedEmployeeId)?.name}
+      />
     </div>
   );
 };

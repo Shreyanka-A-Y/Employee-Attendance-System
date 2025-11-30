@@ -14,6 +14,7 @@ import {
   Sun,
   Moon,
   FileText,
+  MessageSquare,
 } from 'lucide-react';
 import './Sidebar.css';
 
@@ -108,6 +109,7 @@ const Sidebar = ({ onMobileToggle, isMobileOpen: externalMobileOpen, onCollapsed
         { icon: Calendar, label: 'All Attendance', path: '/manager/attendance' },
         { icon: History, label: 'Calendar', path: '/manager/calendar' },
         { icon: FileText, label: 'Leave Requests', path: '/manager/leaves' },
+        { icon: MessageSquare, label: 'Send Notice', path: '/manager/broadcast' },
         { icon: Settings, label: 'Reports', path: '/manager/reports' },
       ]
     : [
