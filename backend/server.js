@@ -9,6 +9,11 @@ dotenv.config();
 
 const app = express();
 
+app.get('/', (req, res) => {
+  res.send('Employee Attendance Backend is running!');
+});
+
+
 // Middleware
 // CORS configuration - allow all origins in development
 // const corsOptions = {
