@@ -1,0 +1,164 @@
+.calendar-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.calendar-section {
+  min-width: 0;
+}
+
+.team-calendar {
+  border: none;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  padding: 20px;
+  width: 100%;
+}
+
+.calendar-day.high-attendance {
+  background-color: #d1fae5 !important;
+  color: #065f46 !important;
+}
+
+.calendar-day.medium-attendance {
+  background-color: #fef3c7 !important;
+  color: #92400e !important;
+}
+
+.calendar-day.low-attendance {
+  background-color: #fee2e2 !important;
+  color: #991b1b !important;
+}
+
+.legend {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.legend-color {
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+}
+
+.legend-color.high-attendance {
+  background-color: #d1fae5;
+}
+
+.legend-color.medium-attendance {
+  background-color: #fef3c7;
+}
+
+.legend-color.low-attendance {
+  background-color: #fee2e2;
+}
+
+.details-section {
+  min-width: 0;
+}
+
+.attendance-list {
+  margin-top: 15px;
+}
+
+.summary-stats {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 20px;
+  padding: 15px;
+  background-color: #f9fafb;
+  border-radius: 8px;
+}
+
+.summary-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.summary-label {
+  font-size: 12px;
+  color: #6b7280;
+  margin-bottom: 5px;
+}
+
+.summary-value {
+  font-size: 20px;
+  font-weight: bold;
+  color: #374151;
+}
+
+.summary-value.present {
+  color: #10b981;
+}
+
+.summary-value.absent {
+  color: #ef4444;
+}
+
+.details-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.details-table th,
+.details-table td {
+  padding: 10px;
+  text-align: left;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.details-table th {
+  background-color: #f9fafb;
+  font-weight: 600;
+  color: #374151;
+}
+
+.details-table tbody tr:hover {
+  background-color: #f9fafb;
+}
+
+.badge {
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.badge.status-present {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.badge.status-absent {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+.badge.status-late {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.badge.status-half-day {
+  background-color: #e0e7ff;
+  color: #3730a3;
+}
+
+@media (max-width: 1024px) {
+  .calendar-layout {
+    grid-template-columns: 1fr;
+  }
+}
+

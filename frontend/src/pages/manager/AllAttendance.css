@@ -1,0 +1,91 @@
+.filters-card {
+  margin-bottom: 20px;
+}
+
+.filters-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.filter-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.attendance-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+  font-size: 14px;
+}
+
+.attendance-table th,
+.attendance-table td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.attendance-table th {
+  background-color: #f9fafb;
+  font-weight: 600;
+  color: #374151;
+}
+
+.attendance-table tbody tr:hover {
+  background-color: #f9fafb;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.badge {
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.badge.status-present {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.badge.status-absent {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+.badge.status-late {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.badge.status-halfday {
+  background-color: #e0e7ff;
+  color: #3730a3;
+}
+
+@media (max-width: 768px) {
+  .filters-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .attendance-table {
+    font-size: 12px;
+  }
+
+  .attendance-table th,
+  .attendance-table td {
+    padding: 8px;
+  }
+}
+
