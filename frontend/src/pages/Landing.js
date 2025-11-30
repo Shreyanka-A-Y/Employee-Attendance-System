@@ -29,7 +29,7 @@ const Landing = () => {
         <div className="nav-container">
           <div className="nav-logo">
             <Calendar className="logo-icon" />
-            <span>AttendPro</span>
+            <span>AttendDo</span>
           </div>
           <div className="nav-actions">
             <Link to="/login" className="nav-link">Login</Link>
@@ -289,52 +289,6 @@ const Landing = () => {
         </div>
       </section>
 
-      {/* How It Works */}
-      <section className="how-it-works">
-        <div className="container">
-          <h2 className="section-title">How It Works</h2>
-          <div className="steps-flow">
-            <div className="step-item">
-              <div className="step-icon">
-                <Users />
-              </div>
-              <h3>Register</h3>
-              <p>Create your account in seconds</p>
-            </div>
-            <div className="step-arrow">
-              <ArrowRight />
-            </div>
-            <div className="step-item">
-              <div className="step-icon">
-                <Clock />
-              </div>
-              <h3>Check In</h3>
-              <p>Mark your attendance with one click</p>
-            </div>
-            <div className="step-arrow">
-              <ArrowRight />
-            </div>
-            <div className="step-item">
-              <div className="step-icon">
-                <BarChart3 />
-              </div>
-              <h3>Track</h3>
-              <p>Monitor your hours and patterns</p>
-            </div>
-            <div className="step-arrow">
-              <ArrowRight />
-            </div>
-            <div className="step-item">
-              <div className="step-icon">
-                <Download />
-              </div>
-              <h3>Export</h3>
-              <p>Download reports anytime</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* Tech Stack */}
       <section className="tech-stack">
         <div className="container">
@@ -377,17 +331,7 @@ const Landing = () => {
         <div className="container">
           <div className="cta-block">
             <h2>Ready to modernize your attendance tracking?</h2>
-            <p>Join thousands of teams already using AttendPro</p>
-            <div className="cta-buttons">
-              <Link to="/register" className="cta-btn primary large">
-                Get Started Free
-                <ArrowRight className="btn-icon" />
-              </Link>
-              <Link to="/login" className="cta-btn secondary large">
-                Sign In
-                <ArrowRight className="btn-icon" />
-              </Link>
-            </div>
+            <p>Join thousands of teams already using AttendDo</p>
           </div>
         </div>
       </section>
@@ -395,7 +339,7 @@ const Landing = () => {
       {/* Footer */}
       <footer className="landing-footer">
         <div className="container">
-          <p>&copy; 2024 AttendPro. All rights reserved.</p>
+          <p>&copy; 2024 AttendDo. All rights reserved.</p>
         </div>
       </footer>
     </div>

@@ -137,7 +137,10 @@ PORT=5000
 MONGODB_URI=mongodb://localhost:27017/employee-attendance
 JWT_SECRET=your_super_secret_jwt_key_change_this_in_production
 NODE_ENV=development
+FRONTEND_URL=http://localhost:3000
 ```
+
+**Note**: `FRONTEND_URL` is optional for local development. It's required in production for CORS configuration.
 
 4. Start MongoDB (if running locally):
 ```bash
@@ -302,17 +305,83 @@ This creates an optimized production build in the `build` folder.
    - Vercel
    - AWS S3 + CloudFront
    - GitHub Pages
+   - Render (Static Site)
 
 ### Environment Variables for Production
 
 **Backend:**
 - `PORT`: Server port (usually set by hosting platform)
-- `MONGODB_URI`: MongoDB connection string
-- `JWT_SECRET`: Strong secret key for JWT tokens
+- `MONGODB_URI`: MongoDB connection string (e.g., MongoDB Atlas connection string)
+- `JWT_SECRET`: Strong secret key for JWT tokens (use a secure random string)
 - `NODE_ENV`: Set to `production`
+- `FRONTEND_URL`: Your frontend URL for CORS configuration (optional, defaults to hardcoded value)
 
 **Frontend:**
-- `REACT_APP_API_URL`: Your backend API URL
+- `REACT_APP_API_URL`: Your backend API URL (should include `/api` at the end, e.g., `https://your-backend.onrender.com/api`)
+
+**Note**: The code includes production fallbacks, but it's **highly recommended** to set these environment variables explicitly in your hosting platform for better control and flexibility.
+
+### Deployment on Render
+
+#### Backend Service Setup
+
+1. Create a new **Web Service** on Render
+2. Connect your repository
+3. Set the following:
+   - **Build Command**: `npm install`
+   - **Start Command**: `npm start`
+   - **Environment**: `Node`
+4. Add Environment Variables:
+   ```
+   PORT=5000 (or leave empty, Render will set it automatically)
+   MONGODB_URI=your_mongodb_atlas_connection_string
+   JWT_SECRET=your_secure_jwt_secret_key
+   NODE_ENV=production
+   FRONTEND_URL=https://your-frontend-url.onrender.com
+   ```
+
+#### Frontend Service Setup
+
+1. Create a new **Static Site** on Render
+2. Connect your repository
+3. Set the following:
+   - **Build Command**: `cd frontend && npm install && npm run build`
+   - **Publish Directory**: `frontend/build`
+4. Add Environment Variable:
+   ```
+   REACT_APP_API_URL=https://your-backend-service.onrender.com/api
+   ```
+   **Important**: Make sure the URL ends with `/api`
+
+5. After deployment, trigger a new build to apply the environment variable
+
+#### Example Configuration
+
+If your services are deployed as:
+- Frontend: `https://employee-attendance-system-1-uhmb.onrender.com`
+- Backend: `https://employee-attendance-system-59im.onrender.com`
+
+**Frontend Environment Variable:**
+```
+REACT_APP_API_URL=https://employee-attendance-system-59im.onrender.com/api
+```
+
+**Backend Environment Variable:**
+```
+FRONTEND_URL=https://employee-attendance-system-1-uhmb.onrender.com
+```
+
+### Troubleshooting Connection Issues
+
+If you see "Unable to connect to server" error:
+
+1. **Check Environment Variables**: Ensure `REACT_APP_API_URL` is set correctly in your frontend service
+2. **Verify Backend URL**: Make sure the backend URL is accessible and includes `/api` at the end
+3. **Check CORS**: Ensure `FRONTEND_URL` in backend matches your frontend URL exactly
+4. **Redeploy**: After setting environment variables, trigger a new deployment
+5. **Check Backend Health**: Visit `https://your-backend.onrender.com/api/health` to verify backend is running
+6. **Browser Console**: Check browser console for specific error messages
+7. **Network Tab**: Check browser DevTools Network tab to see if requests are being made and what errors they return
 
 ## Security Features
 
