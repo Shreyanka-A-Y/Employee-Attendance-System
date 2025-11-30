@@ -11,6 +11,7 @@ import EmployeeDashboard from './pages/employee/Dashboard';
 import MarkAttendance from './pages/employee/MarkAttendance';
 import AttendanceHistory from './pages/employee/AttendanceHistory';
 import EmployeeProfile from './pages/employee/Profile';
+import LeaveApplication from './pages/employee/LeaveApplication';
 
 // Manager Pages
 import ManagerLogin from './pages/manager/Login';
@@ -18,6 +19,7 @@ import ManagerDashboard from './pages/manager/Dashboard';
 import AllAttendance from './pages/manager/AllAttendance';
 import TeamCalendar from './pages/manager/TeamCalendar';
 import Reports from './pages/manager/Reports';
+import LeaveRequests from './pages/manager/LeaveRequests';
 
 // Layout
 import Layout from './components/Layout';
@@ -79,6 +81,10 @@ function App() {
           element={<AttendanceHistory />}
         />
         <Route
+          path="employee/leave"
+          element={<LeaveApplication />}
+        />
+        <Route
           path="employee/profile"
           element={<EmployeeProfile />}
         />
@@ -111,6 +117,16 @@ function App() {
           <PrivateRoute requiredRole="manager">
             <Layout>
               <TeamCalendar />
+            </Layout>
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/manager/leaves"
+        element={
+          <PrivateRoute requiredRole="manager">
+            <Layout>
+              <LeaveRequests />
             </Layout>
           </PrivateRoute>
         }

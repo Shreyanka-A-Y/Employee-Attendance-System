@@ -8,12 +8,12 @@ import {
   History,
   User,
   Settings,
-  HelpCircle,
   LogOut,
   ChevronLeft,
   ChevronRight,
   Sun,
   Moon,
+  FileText,
 } from 'lucide-react';
 import './Sidebar.css';
 
@@ -107,14 +107,15 @@ const Sidebar = ({ onMobileToggle, isMobileOpen: externalMobileOpen, onCollapsed
         { icon: LayoutDashboard, label: 'Dashboard', path: '/manager/dashboard' },
         { icon: Calendar, label: 'All Attendance', path: '/manager/attendance' },
         { icon: History, label: 'Calendar', path: '/manager/calendar' },
+        { icon: FileText, label: 'Leave Requests', path: '/manager/leaves' },
         { icon: Settings, label: 'Reports', path: '/manager/reports' },
       ]
     : [
         { icon: LayoutDashboard, label: 'Dashboard', path: '/employee/dashboard' },
         { icon: Calendar, label: 'Mark Attendance', path: '/employee/attendance' },
         { icon: History, label: 'History', path: '/employee/history' },
+        { icon: FileText, label: 'Leave Application', path: '/employee/leave' },
         { icon: User, label: 'Profile', path: '/employee/profile' },
-        { icon: Settings, label: 'Settings', path: '/employee/profile' },
       ];
 
   const isActive = (path) => {
@@ -197,16 +198,6 @@ const Sidebar = ({ onMobileToggle, isMobileOpen: externalMobileOpen, onCollapsed
 
         {/* Bottom Section */}
         <div className="sidebar-footer">
-          <SidebarItem
-            icon={HelpCircle}
-            label="Help"
-            path="#"
-            active={false}
-            collapsed={isCollapsed}
-            onClick={() => {
-              // Handle help action
-            }}
-          />
           <SidebarItem
             icon={LogOut}
             label="Log out"

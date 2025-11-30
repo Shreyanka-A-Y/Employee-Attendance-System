@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { getMyHistory, getMySummary } from '../../store/slices/attendanceSlice';
+import { getCalendarMonth } from '../../store/slices/calendarSlice';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 import './AttendanceHistory.css';
@@ -8,12 +9,14 @@ import './AttendanceHistory.css';
 const AttendanceHistory = () => {
   const dispatch = useDispatch();
   const { history, summary, loading, error } = useSelector((state) => state.attendance);
-  const [view, setView] = useState('table'); // 'table' or 'calendar'
+  const { monthData } = useSelector((state) => state.calendar);
+  const [view, setView] = useState('table');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   const [currentPage, setCurrentPage] = useState(1);
+  const [calendarDate, setCalendarDate] = useState(new Date());
   const recordsPerPage = 10;
 
   useEffect(() => {
@@ -27,6 +30,15 @@ const AttendanceHistory = () => {
     dispatch(getMySummary({ month: selectedMonth, year: selectedYear }));
   }, [dispatch, selectedMonth, selectedYear]);
 
+  // Fetch calendar data when view changes or month changes
+  useEffect(() => {
+    if (view === 'calendar') {
+      const year = calendarDate.getFullYear();
+      const month = calendarDate.getMonth() + 1;
+      dispatch(getCalendarMonth({ year, month }));
+    }
+  }, [dispatch, view, calendarDate]);
+
   const handleResetFilters = () => {
     setStartDate('');
     setEndDate('');
@@ -35,15 +47,97 @@ const AttendanceHistory = () => {
     setCurrentPage(1);
   };
 
-  const tileClassName = ({ date }) => {
+  // Status color mapping
+  const getStatusClass = (status, date) => {
     const dateStr = date.toISOString().split('T')[0];
-    const record = history?.find(
-      (h) => new Date(h.date).toISOString().split('T')[0] === dateStr
-    );
-    if (record) {
-      return `calendar-day status-${record.status}`;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const isToday = dateStr === today.toISOString().split('T')[0];
+    
+    const baseClasses = [];
+    if (isToday) {
+      baseClasses.push('calendar-today');
     }
+
+    switch (status) {
+      case 'present':
+        baseClasses.push('calendar-status-present');
+        break;
+      case 'late':
+        baseClasses.push('calendar-status-late');
+        break;
+      case 'half-day':
+        baseClasses.push('calendar-status-halfday');
+        break;
+      case 'absent':
+        baseClasses.push('calendar-status-absent');
+        break;
+      case 'leave-approved':
+        baseClasses.push('calendar-status-leave-approved');
+        break;
+      case 'leave-pending':
+        baseClasses.push('calendar-status-leave-pending');
+        break;
+      default:
+        break;
+    }
+
+    return baseClasses.join(' ');
+  };
+
+  const tileClassName = ({ date, view }) => {
+    if (view !== 'month') return null;
+
+    const dateStr = date.toISOString().split('T')[0];
+    const statusData = monthData?.find((item) => item.date === dateStr);
+    
+    if (statusData) {
+      return getStatusClass(statusData.status, date);
+    }
+
+    // Check if it's today
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    if (dateStr === today.toISOString().split('T')[0]) {
+      return 'calendar-today';
+    }
+
     return null;
+  };
+
+  const tileContent = ({ date, view }) => {
+    if (view !== 'month') return null;
+
+    const dateStr = date.toISOString().split('T')[0];
+    const statusData = monthData?.find((item) => item.date === dateStr);
+    
+    if (statusData) {
+      const status = statusData.status;
+      if (status === 'leave-approved') {
+        return <div className="calendar-badge leave-badge">L</div>;
+      }
+      if (status === 'leave-pending') {
+        return <div className="calendar-badge pending-badge">P</div>;
+      }
+      if (status === 'late') {
+        return <div className="calendar-badge late-badge">Late</div>;
+      }
+      if (status === 'present') {
+        return <div className="calendar-dot present-dot"></div>;
+      }
+      if (status === 'half-day') {
+        return <div className="calendar-badge halfday-badge">½</div>;
+      }
+      if (status === 'absent') {
+        return <div className="calendar-dot absent-dot"></div>;
+      }
+    }
+
+    return null;
+  };
+
+  const handleCalendarChange = (date) => {
+    setCalendarDate(date);
   };
 
   // Pagination logic
@@ -294,7 +388,7 @@ const AttendanceHistory = () => {
                         </td>
                         <td>
                           <span className={`status-badge status-${record.status}`}>
-                            {record.status}
+                            {record.status === 'leave' ? 'Leave' : record.status}
                           </span>
                         </td>
                         <td className="time-cell">
@@ -355,8 +449,16 @@ const AttendanceHistory = () => {
             </div>
             <div className="calendar-wrapper">
               <Calendar
+                onChange={handleCalendarChange}
+                value={calendarDate}
                 tileClassName={tileClassName}
+                tileContent={tileContent}
                 className="attendance-calendar"
+                onActiveStartDateChange={({ activeStartDate }) => {
+                  if (activeStartDate) {
+                    setCalendarDate(activeStartDate);
+                  }
+                }}
               />
             </div>
             <div className="legend">
@@ -375,6 +477,14 @@ const AttendanceHistory = () => {
               <div className="legend-item">
                 <span className="legend-color half-day"></span>
                 <span className="legend-label">Half Day</span>
+              </div>
+              <div className="legend-item">
+                <span className="legend-color leave-approved"></span>
+                <span className="legend-label">Leave (Approved)</span>
+              </div>
+              <div className="legend-item">
+                <span className="legend-color leave-pending"></span>
+                <span className="legend-label">Leave (Pending)</span>
               </div>
             </div>
           </div>

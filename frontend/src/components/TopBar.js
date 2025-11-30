@@ -15,10 +15,12 @@ const routeMap = {
   '/employee/dashboard': { name: 'Dashboard', icon: LayoutDashboard },
   '/employee/attendance': { name: 'Mark Attendance', icon: Calendar },
   '/employee/history': { name: 'History', icon: History },
+  '/employee/leave': { name: 'Leave Application', icon: FileText },
   '/employee/profile': { name: 'Profile', icon: User },
   '/manager/dashboard': { name: 'Dashboard', icon: LayoutDashboard },
   '/manager/attendance': { name: 'All Attendance', icon: Calendar },
   '/manager/calendar': { name: 'Calendar', icon: History },
+  '/manager/leaves': { name: 'Leave Requests', icon: FileText },
   '/manager/reports': { name: 'Reports', icon: FileText },
 };
 

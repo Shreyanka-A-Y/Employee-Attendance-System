@@ -55,6 +55,8 @@ app.use('/api/auth', require('./routes/auth'));
 app.use('/api/attendance', require('./routes/attendance'));
 app.use('/api/dashboard', require('./routes/dashboard'));
 app.use('/api/users', require('./routes/users'));
+app.use('/api/leave', require('./routes/leave'));
+app.use('/api/calendar', require('./routes/calendar'));
 
 // Debug: Log all registered routes
 console.log('Registered routes:');
