@@ -353,7 +353,26 @@ This creates an optimized production build in the `build` folder.
    ```
    **Important**: Make sure the URL ends with `/api`
 
-5. After deployment, trigger a new build to apply the environment variable
+5. **Configure Redirects** (CRITICAL for fixing "Not Found" on page reload):
+   
+   **Option A: Using Render Dashboard (Recommended)**
+   - Go to your Static Site service in Render dashboard
+   - Click on **Settings** → **Headers**
+   - Add a custom header:
+     - **Name**: `X-Redirect`
+     - **Value**: `/index.html`
+   - OR look for **Redirects** section and add:
+     - **Source Path**: `/*`
+     - **Destination**: `/index.html`
+     - **Status Code**: `200` (Rewrite, not redirect)
+   
+   **Option B: If Redirects not available in Dashboard**
+   - You may need to serve the frontend from your backend as a fallback
+   - Or contact Render support to enable redirects for your static site
+   
+   **Why this is needed**: When you reload a page like `/employee/dashboard`, the server looks for that file. Since it doesn't exist (it's a React Router route), you get "Not Found". The redirect tells the server to serve `index.html` for all routes, allowing React Router to handle routing.
+
+6. After deployment, trigger a new build to apply the environment variable
 
 #### Example Configuration
 
@@ -391,16 +410,7 @@ If you see "Unable to connect to server" error:
 - Input validation with express-validator
 - CORS configuration
 
-## Future Enhancements
 
-- [ ] Email notifications for attendance
-- [ ] Leave management system
-- [ ] Shift management
-- [ ] Mobile app (React Native)
-- [ ] Biometric integration
-- [ ] Advanced analytics and insights
-- [ ] Multi-company support
-- [ ] Real-time notifications
 
 ## Contributing
 
@@ -418,7 +428,4 @@ This project is open source and available under the MIT License.
 
 For issues, questions, or contributions, please open an issue on the repository.
 
-## Author
-
-Built with ❤️ for efficient employee attendance management.
 
