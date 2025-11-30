@@ -8,7 +8,8 @@
     "dev": "nodemon server.js",
     "seed": "node scripts/seed.js",
     "test-api": "node test-api.js",
-    "check-setup": "node check-setup.js"
+    "check-setup": "node check-setup.js",
+    "test-calendar": "node test-calendar-endpoint.js"
   },
   "keywords": ["attendance", "employee", "management"],
   "author": "",

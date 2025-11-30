@@ -1,52 +1,72 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { getAllAttendance } from '../../store/slices/attendanceSlice';
-import { getCalendarMonthAll } from '../../store/slices/calendarSlice';
+import {
+  getEmployeeCalendar,
+  getAllEmployees,
+  clearError,
+} from '../../store/slices/calendarSlice';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 import './TeamCalendar.css';
 
 const TeamCalendar = () => {
   const dispatch = useDispatch();
-  const { allAttendance } = useSelector((state) => state.attendance);
-  const { monthDataAll } = useSelector((state) => state.calendar);
-  const [selectedDate, setSelectedDate] = useState(new Date());
+  const { employeeCalendar, employees, loading, error } = useSelector(
+    (state) => state.calendar
+  );
+  const [selectedEmployeeId, setSelectedEmployeeId] = useState('');
   const [calendarDate, setCalendarDate] = useState(new Date());
-  const [selectedUserId, setSelectedUserId] = useState('');
+  const [selectedDate, setSelectedDate] = useState(null);
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
 
+  // Fetch employees on mount
   useEffect(() => {
-    const startDate = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), 1);
-    const endDate = new Date(selectedDate.getFullYear(), selectedDate.getMonth() + 1, 0);
-    dispatch(getAllAttendance({ startDate: startDate.toISOString(), endDate: endDate.toISOString() }));
-  }, [dispatch, selectedDate]);
+    dispatch(getAllEmployees());
+  }, [dispatch]);
 
-  // Fetch calendar data when month changes
+  // Fetch calendar data when employee or month changes
   useEffect(() => {
-    const year = calendarDate.getFullYear();
-    const month = calendarDate.getMonth() + 1;
-    dispatch(getCalendarMonthAll({ year, month, userId: selectedUserId || undefined }));
-  }, [dispatch, calendarDate, selectedUserId]);
+    if (selectedEmployeeId) {
+      const year = calendarDate.getFullYear();
+      const month = calendarDate.getMonth() + 1;
+      dispatch(getEmployeeCalendar({ userId: selectedEmployeeId, year, month }));
+    }
+  }, [dispatch, selectedEmployeeId, calendarDate]);
+
+  // Clear error after 5 seconds
+  useEffect(() => {
+    if (error) {
+      const timer = setTimeout(() => {
+        dispatch(clearError());
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [error, dispatch]);
+
+  const handleEmployeeChange = (e) => {
+    setSelectedEmployeeId(e.target.value);
+    setSelectedDate(null);
+    setShowDetailsModal(false);
+  };
 
   const handleCalendarChange = (date) => {
     setCalendarDate(date);
+    setSelectedDate(null);
+    setShowDetailsModal(false);
   };
 
-  // Get unique users from attendance data
-  const uniqueUsers = Array.from(
-    new Set(
-      allAttendance
-        .map((att) => att.userId?._id)
-        .filter(Boolean)
-    )
-  );
+  const handleDateClick = (date) => {
+    if (!selectedEmployeeId) return;
+    setSelectedDate(date);
+    setShowDetailsModal(true);
+  };
 
-  // Status color mapping
   const getStatusClass = (status, date) => {
     const dateStr = date.toISOString().split('T')[0];
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const isToday = dateStr === today.toISOString().split('T')[0];
-    
+
     const baseClasses = [];
     if (isToday) {
       baseClasses.push('calendar-today');
@@ -71,6 +91,9 @@ const TeamCalendar = () => {
       case 'leave-pending':
         baseClasses.push('calendar-status-leave-pending');
         break;
+      case 'no-record':
+        baseClasses.push('calendar-status-no-record');
+        break;
       default:
         break;
     }
@@ -79,35 +102,13 @@ const TeamCalendar = () => {
   };
 
   const tileClassName = ({ date, view }) => {
-    if (view !== 'month') return null;
+    if (view !== 'month' || !employeeCalendar?.calendarData) return null;
 
     const dateStr = date.toISOString().split('T')[0];
-    
-    // If filtering by user, show only that user's status
-    if (selectedUserId) {
-      const statusData = monthDataAll?.find(
-        (item) => item.date === dateStr && item.userId === selectedUserId
-      );
-      if (statusData) {
-        return getStatusClass(statusData.status, date);
-      }
-    } else {
-      // Show aggregated status (most common status for that date)
-      const dateStatuses = monthDataAll?.filter((item) => item.date === dateStr);
-      if (dateStatuses && dateStatuses.length > 0) {
-        // Count statuses
-        const statusCounts = {};
-        dateStatuses.forEach((item) => {
-          statusCounts[item.status] = (statusCounts[item.status] || 0) + 1;
-        });
-        
-        // Get most common status
-        const mostCommonStatus = Object.keys(statusCounts).reduce((a, b) =>
-          statusCounts[a] > statusCounts[b] ? a : b
-        );
-        
-        return getStatusClass(mostCommonStatus, date);
-      }
+    const dayData = employeeCalendar.calendarData.find((item) => item.date === dateStr);
+
+    if (dayData) {
+      return getStatusClass(dayData.status, date);
     }
 
     // Check if it's today
@@ -121,38 +122,29 @@ const TeamCalendar = () => {
   };
 
   const tileContent = ({ date, view }) => {
-    if (view !== 'month') return null;
+    if (view !== 'month' || !employeeCalendar?.calendarData) return null;
 
     const dateStr = date.toISOString().split('T')[0];
-    const dateStatuses = monthDataAll?.filter((item) => item.date === dateStr);
-    
-    if (dateStatuses && dateStatuses.length > 0) {
-      // Count statuses for this date
-      const statusCounts = {};
-      dateStatuses.forEach((item) => {
-        statusCounts[item.status] = (statusCounts[item.status] || 0) + 1;
-      });
-      
-      const mostCommonStatus = Object.keys(statusCounts).reduce((a, b) =>
-        statusCounts[a] > statusCounts[b] ? a : b
-      );
-      
-      if (mostCommonStatus === 'leave-approved') {
+    const dayData = employeeCalendar.calendarData.find((item) => item.date === dateStr);
+
+    if (dayData) {
+      const status = dayData.status;
+      if (status === 'leave-approved') {
         return <div className="calendar-badge leave-badge">L</div>;
       }
-      if (mostCommonStatus === 'leave-pending') {
+      if (status === 'leave-pending') {
         return <div className="calendar-badge pending-badge">P</div>;
       }
-      if (mostCommonStatus === 'late') {
+      if (status === 'late') {
         return <div className="calendar-badge late-badge">Late</div>;
       }
-      if (mostCommonStatus === 'present') {
+      if (status === 'present') {
         return <div className="calendar-dot present-dot"></div>;
       }
-      if (mostCommonStatus === 'half-day') {
+      if (status === 'half-day') {
         return <div className="calendar-badge halfday-badge">½</div>;
       }
-      if (mostCommonStatus === 'absent') {
+      if (status === 'absent') {
         return <div className="calendar-dot absent-dot"></div>;
       }
     }
@@ -160,148 +152,245 @@ const TeamCalendar = () => {
     return null;
   };
 
-  const getDateAttendance = (date) => {
-    const dateStr = date.toISOString().split('T')[0];
-    return allAttendance.filter(
-      (att) => new Date(att.date).toISOString().split('T')[0] === dateStr
-    );
+  const getSelectedDateData = () => {
+    if (!selectedDate || !employeeCalendar?.calendarData) return null;
+    const dateStr = selectedDate.toISOString().split('T')[0];
+    return employeeCalendar.calendarData.find((item) => item.date === dateStr);
   };
 
-  const selectedDateAttendance = getDateAttendance(selectedDate);
+  const selectedDateData = getSelectedDateData();
+  const selectedEmployee = employees.find((emp) => emp._id === selectedEmployeeId);
 
   return (
     <div className="container">
-      <h1>Team Calendar View</h1>
+      <h1>Employee Calendar</h1>
 
-      <div className="calendar-layout">
-        <div className="calendar-section">
-          <div className="card">
-            <div className="calendar-filters">
-              <label htmlFor="userFilter">Filter by Employee:</label>
-              <select
-                id="userFilter"
-                value={selectedUserId}
-                onChange={(e) => setSelectedUserId(e.target.value)}
-                className="form-control"
-              >
-                <option value="">All Employees</option>
-                {uniqueUsers.map((userId) => {
-                  const user = allAttendance.find((att) => att.userId?._id === userId)?.userId;
-                  return (
-                    <option key={userId} value={userId}>
-                      {user?.name || 'Unknown'} ({user?.employeeId || 'N/A'})
-                    </option>
-                  );
-                })}
-              </select>
-            </div>
-            <Calendar
-              onChange={handleCalendarChange}
-              value={calendarDate}
-              tileClassName={tileClassName}
-              tileContent={tileContent}
-              className="team-calendar"
-              onActiveStartDateChange={({ activeStartDate }) => {
-                if (activeStartDate) {
-                  setCalendarDate(activeStartDate);
-                }
-              }}
-            />
-            <div className="legend">
-              <div className="legend-item">
-                <span className="legend-color present"></span>
-                <span>Present</span>
-              </div>
-              <div className="legend-item">
-                <span className="legend-color absent"></span>
-                <span>Absent</span>
-              </div>
-              <div className="legend-item">
-                <span className="legend-color late"></span>
-                <span>Late</span>
-              </div>
-              <div className="legend-item">
-                <span className="legend-color half-day"></span>
-                <span>Half Day</span>
-              </div>
-              <div className="legend-item">
-                <span className="legend-color leave-approved"></span>
-                <span>Leave (Approved)</span>
-              </div>
-              <div className="legend-item">
-                <span className="legend-color leave-pending"></span>
-                <span>Leave (Pending)</span>
-              </div>
-            </div>
-          </div>
+      {error && (
+        <div className="error-message">
+          {error}
+        </div>
+      )}
+
+      {/* Employee Selection */}
+      <div className="card employee-selector-card">
+        <div className="employee-selector">
+          <label htmlFor="employeeSelect" className="selector-label">
+            Select Employee:
+          </label>
+          <select
+            id="employeeSelect"
+            value={selectedEmployeeId}
+            onChange={handleEmployeeChange}
+            className="form-control employee-select"
+            disabled={loading}
+          >
+            <option value="">-- Select an Employee --</option>
+            {employees.map((emp) => (
+              <option key={emp._id} value={emp._id}>
+                {emp.name} {emp.employeeId ? `(${emp.employeeId})` : ''} - {emp.department || 'No Department'}
+              </option>
+            ))}
+          </select>
         </div>
 
-        <div className="details-section">
-          <div className="card">
-            <h2>Attendance for {selectedDate.toLocaleDateString()}</h2>
-            {selectedDateAttendance.length === 0 ? (
-              <p>No attendance records for this date</p>
-            ) : (
-              <div className="attendance-list">
-                <div className="summary-stats">
-                  <div className="summary-item">
-                    <span className="summary-label">Total:</span>
-                    <span className="summary-value">{selectedDateAttendance.length}</span>
+        {selectedEmployee && (
+          <div className="employee-info">
+            <h3>{selectedEmployee.name}</h3>
+            <div className="employee-details">
+              <span><strong>ID:</strong> {selectedEmployee.employeeId || 'N/A'}</span>
+              <span><strong>Department:</strong> {selectedEmployee.department || 'N/A'}</span>
+              <span><strong>Email:</strong> {selectedEmployee.email || 'N/A'}</span>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {selectedEmployeeId && (
+        <>
+          {/* Calendar */}
+          <div className="calendar-layout">
+            <div className="calendar-section">
+              <div className="card">
+                {loading && (
+                  <div className="loading-overlay">
+                    <div className="loading-spinner"></div>
+                    <p>Loading calendar...</p>
                   </div>
-                  <div className="summary-item">
-                    <span className="summary-label">Present:</span>
-                    <span className="summary-value present">
-                      {selectedDateAttendance.filter((a) => a.status === 'present' || a.status === 'late').length}
-                    </span>
+                )}
+                <Calendar
+                  onChange={handleCalendarChange}
+                  value={calendarDate}
+                  onClickDay={handleDateClick}
+                  tileClassName={tileClassName}
+                  tileContent={tileContent}
+                  className="team-calendar"
+                  onActiveStartDateChange={({ activeStartDate }) => {
+                    if (activeStartDate) {
+                      setCalendarDate(activeStartDate);
+                    }
+                  }}
+                />
+                <div className="legend">
+                  <div className="legend-item">
+                    <span className="legend-color present"></span>
+                    <span>Present</span>
                   </div>
-                  <div className="summary-item">
-                    <span className="summary-label">Absent:</span>
-                    <span className="summary-value absent">
-                      {selectedDateAttendance.filter((a) => a.status === 'absent').length}
-                    </span>
+                  <div className="legend-item">
+                    <span className="legend-color absent"></span>
+                    <span>Absent</span>
                   </div>
-                  <div className="summary-item">
-                    <span className="summary-label">Leave:</span>
-                    <span className="summary-value leave">
-                      {selectedDateAttendance.filter((a) => a.status === 'leave').length}
-                    </span>
+                  <div className="legend-item">
+                    <span className="legend-color late"></span>
+                    <span>Late</span>
+                  </div>
+                  <div className="legend-item">
+                    <span className="legend-color half-day"></span>
+                    <span>Half Day</span>
+                  </div>
+                  <div className="legend-item">
+                    <span className="legend-color leave-approved"></span>
+                    <span>Leave (Approved)</span>
+                  </div>
+                  <div className="legend-item">
+                    <span className="legend-color leave-pending"></span>
+                    <span>Leave (Pending)</span>
+                  </div>
+                  <div className="legend-item">
+                    <span className="legend-color no-record"></span>
+                    <span>No Record</span>
                   </div>
                 </div>
-                <table className="details-table">
-                  <thead>
-                    <tr>
-                      <th>Employee</th>
-                      <th>ID</th>
-                      <th>Department</th>
-                      <th>Status</th>
-                      <th>Check In</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {selectedDateAttendance.map((record, idx) => (
-                      <tr key={idx}>
-                        <td>{record.userId?.name || 'N/A'}</td>
-                        <td>{record.userId?.employeeId || 'N/A'}</td>
-                        <td>{record.userId?.department || 'N/A'}</td>
-                        <td>
-                          <span className={`badge status-${record.status}`}>
-                            {record.status === 'leave' ? 'Leave' : record.status}
-                          </span>
-                        </td>
-                        <td>
-                          {record.checkInTime
-                            ? new Date(record.checkInTime).toLocaleTimeString()
-                            : '-'}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
               </div>
-            )}
+            </div>
+          </div>
+        </>
+      )}
+
+      {!selectedEmployeeId && (
+        <div className="card empty-state-card">
+          <div className="empty-state">
+            <div className="empty-icon">📅</div>
+            <h3>Select an Employee</h3>
+            <p>Please select an employee from the dropdown above to view their calendar and attendance details.</p>
           </div>
         </div>
-      </div>
+      )}
+
+      {/* Date Details Modal */}
+      {showDetailsModal && selectedDate && (
+        <div className="modal-overlay" onClick={() => setShowDetailsModal(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>Attendance Details</h2>
+              <button
+                className="modal-close"
+                onClick={() => setShowDetailsModal(false)}
+                aria-label="Close"
+              >
+                ×
+              </button>
+            </div>
+            <div className="modal-body">
+              <div className="detail-date">
+                <strong>Date:</strong> {new Date(selectedDate).toLocaleDateString('en-US', {
+                  weekday: 'long',
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric',
+                })}
+              </div>
+              <div className="detail-status">
+                <strong>Status:</strong>
+                <span className={`status-badge status-${selectedDateData?.status || 'no-record'}`}>
+                  {!selectedDateData || selectedDateData.status === 'no-record' ? 'No Record' :
+                   selectedDateData.status === 'leave-approved' ? 'On Leave (Approved)' :
+                   selectedDateData.status === 'leave-pending' ? 'On Leave (Pending)' :
+                   selectedDateData.status.charAt(0).toUpperCase() + selectedDateData.status.slice(1)}
+                </span>
+              </div>
+
+              {selectedDateData?.attendance && (
+                <div className="detail-section">
+                  <h4>Attendance Information</h4>
+                  <div className="detail-grid">
+                    <div className="detail-item">
+                      <strong>Check In:</strong>
+                      <span>
+                        {selectedDateData.attendance.checkInTime
+                          ? new Date(selectedDateData.attendance.checkInTime).toLocaleTimeString('en-US', {
+                              hour: '2-digit',
+                              minute: '2-digit',
+                            })
+                          : 'Not checked in'}
+                      </span>
+                    </div>
+                    <div className="detail-item">
+                      <strong>Check Out:</strong>
+                      <span>
+                        {selectedDateData.attendance.checkOutTime
+                          ? new Date(selectedDateData.attendance.checkOutTime).toLocaleTimeString('en-US', {
+                              hour: '2-digit',
+                              minute: '2-digit',
+                            })
+                          : 'Not checked out'}
+                      </span>
+                    </div>
+                    <div className="detail-item">
+                      <strong>Total Hours:</strong>
+                      <span>{selectedDateData.attendance.totalHours?.toFixed(2) || '0.00'} hrs</span>
+                    </div>
+                    <div className="detail-item">
+                      <strong>Status:</strong>
+                      <span className={`status-badge status-${selectedDateData.attendance.status}`}>
+                        {selectedDateData.attendance.status}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {selectedDateData?.leave && (
+                <div className="detail-section">
+                  <h4>Leave Information</h4>
+                  <div className="detail-grid">
+                    <div className="detail-item">
+                      <strong>Leave Type:</strong>
+                      <span>{selectedDateData.leave.leaveType}</span>
+                    </div>
+                    <div className="detail-item">
+                      <strong>Status:</strong>
+                      <span className={`status-badge status-${selectedDateData.leave.status}`}>
+                        {selectedDateData.leave.status}
+                      </span>
+                    </div>
+                    <div className="detail-item full-width">
+                      <strong>Reason:</strong>
+                      <p>{selectedDateData.leave.reason}</p>
+                    </div>
+                    {selectedDateData.leave.managerComment && (
+                      <div className="detail-item full-width">
+                        <strong>Manager Comment:</strong>
+                        <p>{selectedDateData.leave.managerComment}</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {(!selectedDateData || selectedDateData.status === 'no-record') && (
+                <div className="detail-section">
+                  <p className="no-record-message">No attendance or leave record found for this date.</p>
+                </div>
+              )}
+            </div>
+            <div className="modal-footer">
+              <button className="btn btn-primary" onClick={() => setShowDetailsModal(false)}>
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -58,6 +58,13 @@ app.use('/api/users', require('./routes/users'));
 app.use('/api/leave', require('./routes/leave'));
 app.use('/api/calendar', require('./routes/calendar'));
 
+// Log registered calendar routes
+console.log('Calendar routes registered:');
+console.log('  GET /api/calendar/month');
+console.log('  GET /api/calendar/month/all');
+console.log('  GET /api/calendar/employee/:userId');
+console.log('  GET /api/calendar/employee/:userId/summary');
+
 // Debug: Log all registered routes
 console.log('Registered routes:');
 console.log('  POST /api/users/profile/upload-image');
