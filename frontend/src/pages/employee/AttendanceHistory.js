@@ -299,52 +299,6 @@ const AttendanceHistory = () => {
           </div>
         </div>
 
-        {/* Monthly Summary Cards */}
-        {summary && (
-          <div className="summary-section">
-            <h2 className="summary-section-title">
-              Monthly Summary - {new Date(2000, summary.month - 1).toLocaleString('default', { month: 'long' })} {summary.year}
-            </h2>
-            <div className="summary-cards-grid">
-              <div className="summary-card present">
-                <div className="summary-card-icon">✅</div>
-                <div className="summary-card-content">
-                  <span className="summary-card-label">Present</span>
-                  <span className="summary-card-value">{summary.summary.present}</span>
-                </div>
-              </div>
-              <div className="summary-card absent">
-                <div className="summary-card-icon">❌</div>
-                <div className="summary-card-content">
-                  <span className="summary-card-label">Absent</span>
-                  <span className="summary-card-value">{summary.summary.absent}</span>
-                </div>
-              </div>
-              <div className="summary-card late">
-                <div className="summary-card-icon">⏰</div>
-                <div className="summary-card-content">
-                  <span className="summary-card-label">Late</span>
-                  <span className="summary-card-value">{summary.summary.late}</span>
-                </div>
-              </div>
-              <div className="summary-card halfday">
-                <div className="summary-card-icon">⏱️</div>
-                <div className="summary-card-content">
-                  <span className="summary-card-label">Half Day</span>
-                  <span className="summary-card-value">{summary.summary.halfDay}</span>
-                </div>
-              </div>
-              <div className="summary-card hours">
-                <div className="summary-card-icon">⏲️</div>
-                <div className="summary-card-content">
-                  <span className="summary-card-label">Total Hours</span>
-                  <span className="summary-card-value">{summary.summary.totalHours.toFixed(2)}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
         {/* Table View */}
         {view === 'table' && (
           <div className="table-card">
@@ -485,6 +439,52 @@ const AttendanceHistory = () => {
               <div className="legend-item">
                 <span className="legend-color leave-pending"></span>
                 <span className="legend-label">Leave (Pending)</span>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Monthly Summary Cards */}
+        {summary && (
+          <div className="summary-section">
+            <h2 className="summary-section-title">
+              Monthly Summary - {new Date(2000, summary.month - 1).toLocaleString('default', { month: 'long' })} {summary.year}
+            </h2>
+            <div className="summary-cards-grid">
+              <div className="summary-card present">
+                <div className="summary-card-icon">✅</div>
+                <div className="summary-card-content">
+                  <span className="summary-card-label">Present</span>
+                  <span className="summary-card-value">{summary.summary.present}</span>
+                </div>
+              </div>
+              <div className="summary-card absent">
+                <div className="summary-card-icon">❌</div>
+                <div className="summary-card-content">
+                  <span className="summary-card-label">Absent</span>
+                  <span className="summary-card-value">{summary.summary.absent}</span>
+                </div>
+              </div>
+              <div className="summary-card late">
+                <div className="summary-card-icon">⏰</div>
+                <div className="summary-card-content">
+                  <span className="summary-card-label">Late</span>
+                  <span className="summary-card-value">{summary.summary.late}</span>
+                </div>
+              </div>
+              <div className="summary-card halfday">
+                <div className="summary-card-icon">⏱️</div>
+                <div className="summary-card-content">
+                  <span className="summary-card-label">Half Day</span>
+                  <span className="summary-card-value">{summary.summary.halfDay}</span>
+                </div>
+              </div>
+              <div className="summary-card hours">
+                <div className="summary-card-icon">⏲️</div>
+                <div className="summary-card-content">
+                  <span className="summary-card-label">Total Hours</span>
+                  <span className="summary-card-value">{summary.summary.totalHours.toFixed(2)}</span>
+                </div>
               </div>
             </div>
           </div>

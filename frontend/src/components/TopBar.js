@@ -49,8 +49,8 @@ const TopBar = ({ isSidebarCollapsed, isMobile }) => {
         {/* Left side: App Logo + Name */}
         <div className="topbar-left">
           <div className="topbar-logo">
-            <div className="topbar-logo-icon">A</div>
-            <span className="topbar-app-name">Attendance System</span>
+            <div className="topbar-logo-icon">AD</div>
+            <span className="topbar-app-name">AttenDo</span>
           </div>
         </div>
 

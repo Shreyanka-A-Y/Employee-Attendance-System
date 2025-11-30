@@ -142,9 +142,9 @@ const Sidebar = ({ onMobileToggle, isMobileOpen: externalMobileOpen, onCollapsed
         {/* Header */}
         <div className="sidebar-header">
           <div className="sidebar-logo">
-            <div className="logo-icon">A</div>
+            <div className="logo-icon">AD</div>
             <span className={`logo-text ${isCollapsed ? 'logo-text-hidden' : ''}`}>
-              Attendance
+              AttenDo
             </span>
           </div>
           <button
