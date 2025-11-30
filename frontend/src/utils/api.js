@@ -24,6 +24,10 @@ const getBaseURL = () => {
   if (envURL) {
     return envURL.endsWith('/api') ? envURL : envURL.replace(/\/+$/, '') + '/api';
   }
+  // Fallback: use production URL if in production, otherwise localhost
+  if (process.env.NODE_ENV === 'production') {
+    return 'https://employee-attendance-system-59im.onrender.com/api';
+  }
   return 'http://localhost:5000/api';
 };
 

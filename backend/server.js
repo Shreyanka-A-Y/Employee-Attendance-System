@@ -44,7 +44,7 @@ app.get('/', (req, res) => {
 
 // CORS configuration - allow your deployed frontend
 const corsOptions = {
-  origin: 'https://employee-attendance-system-1-uhmb.onrender.com', // replace with your frontend URL
+  origin: process.env.FRONTEND_URL || 'https://employee-attendance-system-1-uhmb.onrender.com',
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']

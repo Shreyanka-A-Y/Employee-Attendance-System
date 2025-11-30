@@ -4,6 +4,9 @@ import { useDispatch, useSelector } from 'react-redux';
 import { getMe, logout } from './store/slices/authSlice';
 import PrivateRoute from './components/PrivateRoute';
 
+// Landing Page
+import Landing from './pages/Landing';
+
 // Employee Pages
 import EmployeeLogin from './pages/employee/Login';
 import EmployeeRegister from './pages/employee/Register';
@@ -46,6 +49,7 @@ function App() {
   return (
     <Routes>
       {/* Public Routes */}
+      <Route path="/" element={!isAuthenticated ? <Landing /> : <Navigate to={user?.role === 'manager' ? '/manager/dashboard' : '/employee/dashboard'} />} />
       <Route path="/login" element={<EmployeeLogin />} />
       <Route path="/register" element={<EmployeeRegister />} />
       <Route path="/manager/login" element={<ManagerLogin />} />
@@ -59,16 +63,6 @@ function App() {
           </PrivateRoute>
         }
       >
-        <Route
-          index
-          element={
-            user?.role === 'manager' ? (
-              <Navigate to="/manager/dashboard" />
-            ) : (
-              <Navigate to="/employee/dashboard" />
-            )
-          }
-        />
         <Route
           path="employee/dashboard"
           element={<EmployeeDashboard />}
