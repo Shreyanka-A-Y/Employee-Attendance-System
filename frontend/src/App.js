@@ -1,7 +1,7 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { getMe } from './store/slices/authSlice';
+import { getMe, logout } from './store/slices/authSlice';
 import PrivateRoute from './components/PrivateRoute';
 
 // Employee Pages
@@ -25,13 +25,18 @@ import Layout from './components/Layout';
 function App() {
   const dispatch = useDispatch();
   const { isAuthenticated, user } = useSelector((state) => state.auth);
+  const hasCheckedAuth = useRef(false);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
-    // Only call getMe if we have a token but aren't authenticated yet
-    // This prevents unnecessary API calls on every render
-    if (token && !isAuthenticated && !user) {
-      dispatch(getMe());
+    // Only call getMe once on mount if we have a token
+    // This prevents unnecessary API calls and reload loops
+    if (token && !hasCheckedAuth.current && !isAuthenticated && !user) {
+      hasCheckedAuth.current = true;
+      dispatch(getMe()).catch(() => {
+        // If getMe fails, ensure we're logged out
+        dispatch(logout());
+      });
     }
   }, [dispatch, isAuthenticated, user]);
 

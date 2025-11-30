@@ -1,26 +1,96 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { getTodayStatus, checkIn, checkOut } from '../../store/slices/attendanceSlice';
 import './MarkAttendance.css';
 
 const MarkAttendance = () => {
   const dispatch = useDispatch();
-  const { todayStatus, loading } = useSelector((state) => state.attendance);
+  const { todayStatus, loading, error } = useSelector((state) => state.attendance);
+  const [localError, setLocalError] = useState(null);
+  const [isProcessing, setIsProcessing] = useState(false);
 
   useEffect(() => {
     dispatch(getTodayStatus());
   }, [dispatch]);
 
-  const handleCheckIn = () => {
-    dispatch(checkIn()).then(() => {
-      dispatch(getTodayStatus());
+  // Debug: Log todayStatus changes
+  useEffect(() => {
+    console.log('Today Status Updated:', {
+      checkInTime: todayStatus?.checkInTime,
+      checkOutTime: todayStatus?.checkOutTime,
+      status: todayStatus?.status,
+      fullStatus: todayStatus,
     });
+  }, [todayStatus]);
+
+  // Clear local error when status updates
+  useEffect(() => {
+    if (todayStatus?.checkInTime) {
+      setLocalError(null);
+    }
+  }, [todayStatus]);
+
+  const handleCheckIn = async () => {
+    // Prevent duplicate clicks
+    if (isProcessing || loading || todayStatus?.checkInTime) {
+      return;
+    }
+
+    setLocalError(null);
+    setIsProcessing(true);
+    
+    try {
+      const result = await dispatch(checkIn());
+      if (checkIn.fulfilled.match(result)) {
+        // Success - immediately update local state shows check-in
+        // Then refresh to get complete status
+        await dispatch(getTodayStatus());
+      } else {
+        // Error occurred - show backend error message
+        const errorMessage = result.payload || 'Check-in failed. Please try again.';
+        setLocalError(errorMessage);
+        console.error('Check-in error:', errorMessage);
+        // Refresh status to get latest state (might already be checked in)
+        await dispatch(getTodayStatus());
+      }
+    } catch (err) {
+      console.error('Check-in exception:', err);
+      setLocalError('An unexpected error occurred. Please try again.');
+      await dispatch(getTodayStatus());
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
-  const handleCheckOut = () => {
-    dispatch(checkOut()).then(() => {
-      dispatch(getTodayStatus());
-    });
+  const handleCheckOut = async () => {
+    // Prevent duplicate clicks
+    if (isProcessing || loading || !todayStatus?.checkInTime || todayStatus?.checkOutTime) {
+      return;
+    }
+
+    setLocalError(null);
+    setIsProcessing(true);
+    
+    try {
+      const result = await dispatch(checkOut());
+      if (checkOut.fulfilled.match(result)) {
+        // Success - refresh status
+        await dispatch(getTodayStatus());
+      } else {
+        // Error occurred - show backend error message
+        const errorMessage = result.payload || 'Check-out failed. Please try again.';
+        setLocalError(errorMessage);
+        console.error('Check-out error:', errorMessage);
+        // Refresh status to get latest state
+        await dispatch(getTodayStatus());
+      }
+    } catch (err) {
+      console.error('Check-out exception:', err);
+      setLocalError('An unexpected error occurred. Please try again.');
+      await dispatch(getTodayStatus());
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   const formatTime = (date) => {
@@ -80,21 +150,33 @@ const MarkAttendance = () => {
         </div>
 
         <div className="action-section">
+          {(localError || error) && (
+            <div className="error-message" style={{ 
+              padding: '10px', 
+              marginBottom: '15px', 
+              backgroundColor: '#fee', 
+              color: '#c33', 
+              borderRadius: '5px',
+              border: '1px solid #fcc'
+            }}>
+              {localError || error}
+            </div>
+          )}
           {!todayStatus?.checkInTime ? (
             <button
               onClick={handleCheckIn}
               className="btn btn-success btn-checkin"
-              disabled={loading}
+              disabled={loading || isProcessing}
             >
-              {loading ? 'Processing...' : 'Check In'}
+              {loading || isProcessing ? 'Processing...' : 'Check In'}
             </button>
           ) : !todayStatus?.checkOutTime ? (
             <button
               onClick={handleCheckOut}
               className="btn btn-danger btn-checkout"
-              disabled={loading}
+              disabled={loading || isProcessing}
             >
-              {loading ? 'Processing...' : 'Check Out'}
+              {loading || isProcessing ? 'Processing...' : 'Check Out'}
             </button>
           ) : (
             <div className="completed-message">

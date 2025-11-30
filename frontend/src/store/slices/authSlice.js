@@ -4,7 +4,7 @@ import api from '../../utils/api';
 // Async thunks
 export const register = createAsyncThunk('api/auth/register', async (userData, { rejectWithValue }) => {
   try {
-    // use relative path 'auth/register' because baseURL already includes '/api/'
+    // use relative path 'auth/register' because baseURL already includes '/api'
     const response = await api.post('auth/register', userData);
     localStorage.setItem('token', response.data.token);
     return response.data;
@@ -127,7 +127,12 @@ const authSlice = createSlice({
       .addCase(getMe.rejected, (state) => {
         state.loading = false;
         state.isAuthenticated = false;
-        localStorage.removeItem('token');
+        state.user = null;
+        state.token = null;
+        // Token removal is handled by API interceptor, but ensure it's removed here too
+        if (localStorage.getItem('token')) {
+          localStorage.removeItem('token');
+        }
       });
   },
 });

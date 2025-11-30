@@ -3,7 +3,7 @@ import api from '../../utils/api';
 
 export const getEmployeeDashboard = createAsyncThunk('dashboard/employee', async (_, { rejectWithValue }) => {
   try {
-    const response = await api.get('/dashboard/employee');
+    const response = await api.get('dashboard/employee');
     return response.data;
   } catch (error) {
     console.error('Dashboard error:', error);
@@ -13,7 +13,7 @@ export const getEmployeeDashboard = createAsyncThunk('dashboard/employee', async
 
 export const getManagerDashboard = createAsyncThunk('dashboard/manager', async (_, { rejectWithValue }) => {
   try {
-    const response = await api.get('/dashboard/manager');
+    const response = await api.get('dashboard/manager');
     return response.data;
   } catch (error) {
     console.error('Dashboard error:', error);

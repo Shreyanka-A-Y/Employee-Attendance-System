@@ -41,7 +41,7 @@ const EmployeeProfile = () => {
     setMessage({ type: '', text: '' });
 
     try {
-      const response = await api.put('/users/profile', formData);
+      const response = await api.put('users/profile', formData);
       setMessage({ type: 'success', text: 'Profile updated successfully!' });
       // Update user in Redux store
       dispatch(getMe());
@@ -101,7 +101,7 @@ const EmployeeProfile = () => {
       }
 
       // Don't set Content-Type header - let axios/browser set it automatically for FormData
-      const response = await api.post('/users/profile/upload-image', formData);
+      const response = await api.post('users/profile/upload-image', formData);
       console.log('Upload response:', response.data);
 
       setMessage({ type: 'success', text: 'Profile image uploaded successfully!' });
@@ -145,7 +145,7 @@ const EmployeeProfile = () => {
     setMessage({ type: '', text: '' });
 
     try {
-      await api.delete('/users/profile/delete-image');
+      await api.delete('users/profile/delete-image');
       setMessage({ type: 'success', text: 'Profile image deleted successfully!' });
       setPreviewImage(null);
       // Update user in Redux store
