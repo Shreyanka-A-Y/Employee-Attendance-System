@@ -1,6 +1,11 @@
 # Employee Attendance System
 
-A comprehensive Employee Attendance Management System built with React, Node.js, Express, and MongoDB. The system supports two roles: Employee and Manager, with complete attendance tracking, reporting, and analytics features.
+[![Tech Stack](https://img.shields.io/badge/Stack-MERN-blue)](https://github.com/Shreyanka-A-Y/Employee-Attendance-System)
+[![React](https://img.shields.io/badge/React-18.2.0-61DAFB?logo=react)](https://reactjs.org/)
+[![Node.js](https://img.shields.io/badge/Node.js-Express-green?logo=node.js)](https://nodejs.org/)
+[![MongoDB](https://img.shields.io/badge/MongoDB-Mongoose-47A248?logo=mongodb)](https://www.mongodb.com/)
+
+A comprehensive Employee Attendance Management System built with **React**, **Node.js**, **Express**, and **MongoDB** (MERN Stack). The system supports two roles: Employee and Manager, with complete attendance tracking, reporting, and analytics features.
 
 ## Features
 
