@@ -39,7 +39,7 @@ const app = express();
 
 // CORS configuration - allow your deployed frontend
 const corsOptions = {
-  origin: 'https://employee-attendance-frontend.onrender.com', // replace with your frontend URL
+  origin: 'https://employee-attendance-system-1-uhmb.onrender.com', // replace with your frontend URL
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']

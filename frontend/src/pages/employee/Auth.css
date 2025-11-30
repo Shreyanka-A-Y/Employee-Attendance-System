@@ -61,7 +61,7 @@
    ============================================ */
 .auth-card {
   background: var(--card-bg);
-  padding: 3rem 2.5rem;
+  padding: 2.5rem 2.5rem;
   border-radius: 20px;
   box-shadow: var(--shadow-xl);
   width: 100%;
@@ -87,7 +87,7 @@
    TYPOGRAPHY
    ============================================ */
 .auth-card h2 {
-  margin: 0 0 2rem 0;
+  margin: 0 0 1.25rem 0;
   text-align: center;
   color: var(--text-primary);
   font-size: 2rem;
@@ -103,7 +103,7 @@
 .auth-card form {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1rem;
 }
 
 .form-group {
@@ -165,7 +165,7 @@
   cursor: pointer;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: 0 4px 6px -1px rgba(99, 102, 241, 0.3);
-  margin-top: 0.25rem;
+  margin-top: 0;
   position: relative;
   overflow: hidden;
 }
@@ -233,12 +233,12 @@
    ERROR MESSAGE
    ============================================ */
 .error {
-  padding: 1rem;
+  padding: 0.875rem;
   background: var(--error-bg);
   border: 1px solid var(--error-border);
   color: var(--error-text);
   border-radius: 12px;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
   font-size: 0.875rem;
   font-weight: 500;
   font-family: 'Inter', sans-serif;
@@ -270,7 +270,7 @@
    ============================================ */
 .auth-link {
   text-align: center;
-  margin-top: 1.25rem;
+  margin-top: 1rem;
   color: var(--text-secondary);
   font-size: 0.875rem;
   font-family: 'Inter', sans-serif;

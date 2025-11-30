@@ -39,13 +39,7 @@ const EmployeeRegister = () => {
       <div className="auth-card">
         <h2>Employee Registration</h2>
         {error && (
-          <div className="error" style={{ 
-            padding: '12px', 
-            backgroundColor: '#fee2e2', 
-            color: '#991b1b', 
-            borderRadius: '5px', 
-            marginBottom: '15px' 
-          }}>
+          <div className="error">
             {error}
           </div>
         )}
