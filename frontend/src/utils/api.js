@@ -1,21 +1,29 @@
 import axios from 'axios';
 
 // Build baseURL without trailing slash to prevent double slashes
+// const getBaseURL = () => {
+//   let envURL = process.env.REACT_APP_API_URL;
+//   if (envURL) {
+//     // Remove trailing slash if present
+//     envURL = envURL.replace(/\/+$/, '');
+//     // Ensure it ends with /api (no trailing slash)
+//     if (envURL.endsWith('/api')) {
+//       return envURL;
+//     } else if (envURL.endsWith('/api/')) {
+//       return envURL.slice(0, -1); // Remove trailing slash
+//     } else {
+//       return `${envURL}/api`;
+//     }
+//   }
+//   // Default: no trailing slash
+//   return 'http://localhost:5000/api';
+// };
+
 const getBaseURL = () => {
-  let envURL = process.env.REACT_APP_API_URL;
+  const envURL = process.env.REACT_APP_API_URL;
   if (envURL) {
-    // Remove trailing slash if present
-    envURL = envURL.replace(/\/+$/, '');
-    // Ensure it ends with /api (no trailing slash)
-    if (envURL.endsWith('/api')) {
-      return envURL;
-    } else if (envURL.endsWith('/api/')) {
-      return envURL.slice(0, -1); // Remove trailing slash
-    } else {
-      return `${envURL}/api`;
-    }
+    return envURL.endsWith('/api') ? envURL : envURL.replace(/\/+$/, '') + '/api';
   }
-  // Default: no trailing slash
   return 'http://localhost:5000/api';
 };
 
