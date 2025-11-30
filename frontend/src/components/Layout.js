@@ -1,97 +1,73 @@
-import React from 'react';
-import { Link, useNavigate, useLocation, Outlet } from 'react-router-dom';
-import { useSelector, useDispatch } from 'react-redux';
-import { logout } from '../store/slices/authSlice';
+import React, { useState, useEffect } from 'react';
+import { Outlet } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+import Sidebar from './Sidebar';
+import TopBar from './TopBar';
+import { Menu } from 'lucide-react';
 import './Layout.css';
 
 const Layout = ({ children }) => {
-  const { user } = useSelector((state) => state.auth);
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
-  const location = useLocation();
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => {
+    const saved = localStorage.getItem('sidebarCollapsed');
+    return saved ? JSON.parse(saved) : false;
+  });
+  const [isMobile, setIsMobile] = useState(() => {
+    return typeof window !== 'undefined' && window.innerWidth <= 768;
+  });
 
-  const handleLogout = () => {
-    dispatch(logout());
-    navigate(user?.role === 'manager' ? '/manager/login' : '/login');
-  };
+  useEffect(() => {
+    const handleResize = () => {
+      const mobile = window.innerWidth <= 768;
+      setIsMobile(mobile);
+      if (mobile === false) {
+        setIsMobileOpen(false);
+      }
+    };
+    
+    // Set initial state
+    handleResize();
+    
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
-  const isManager = user?.role === 'manager';
+  // Calculate sidebar width based on collapsed state
+  // Expanded: 16rem (256px), Collapsed: 4rem (64px)
+  const sidebarWidth = isSidebarCollapsed ? '4rem' : '16rem';
 
   return (
     <div className="layout">
-      <nav className="navbar">
-        <div className="container">
-          <div className="nav-content">
-            <Link to="/" className="logo">
-              Attendance System
-            </Link>
-            <div className="nav-links">
-              {isManager ? (
-                <>
-                  <Link
-                    to="/manager/dashboard"
-                    className={location.pathname === '/manager/dashboard' ? 'active' : ''}
-                  >
-                    Dashboard
-                  </Link>
-                  <Link
-                    to="/manager/attendance"
-                    className={location.pathname === '/manager/attendance' ? 'active' : ''}
-                  >
-                    All Attendance
-                  </Link>
-                  <Link
-                    to="/manager/calendar"
-                    className={location.pathname === '/manager/calendar' ? 'active' : ''}
-                  >
-                    Calendar
-                  </Link>
-                  <Link
-                    to="/manager/reports"
-                    className={location.pathname === '/manager/reports' ? 'active' : ''}
-                  >
-                    Reports
-                  </Link>
-                </>
-              ) : (
-                <>
-                  <Link
-                    to="/employee/dashboard"
-                    className={location.pathname === '/employee/dashboard' ? 'active' : ''}
-                  >
-                    Dashboard
-                  </Link>
-                  <Link
-                    to="/employee/attendance"
-                    className={location.pathname === '/employee/attendance' ? 'active' : ''}
-                  >
-                    Mark Attendance
-                  </Link>
-                  <Link
-                    to="/employee/history"
-                    className={location.pathname === '/employee/history' ? 'active' : ''}
-                  >
-                    History
-                  </Link>
-                  <Link
-                    to="/employee/profile"
-                    className={location.pathname === '/employee/profile' ? 'active' : ''}
-                  >
-                    Profile
-                  </Link>
-                </>
-              )}
-              <div className="user-info">
-                <span>{user?.name}</span>
-                <button onClick={handleLogout} className="btn-logout">
-                  Logout
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </nav>
-      <main className="main-content">
+      <Sidebar 
+        onMobileToggle={(state) => setIsMobileOpen(state)}
+        isMobileOpen={isMobileOpen}
+        onCollapsedChange={setIsSidebarCollapsed}
+      />
+      
+      {/* TopBar */}
+      <TopBar 
+        isSidebarCollapsed={isSidebarCollapsed}
+        isMobile={isMobile}
+      />
+      
+      {/* Mobile Menu Button */}
+      <button
+        type="button"
+        className="mobile-menu-button"
+        onClick={() => setIsMobileOpen(!isMobileOpen)}
+        aria-label="Toggle menu"
+      >
+        <Menu size={24} />
+      </button>
+
+      <main 
+        className="main-content"
+        style={{
+          marginLeft: isMobile ? '0' : sidebarWidth,
+          paddingTop: isMobile ? '80px' : '86px', // TopBar height (60px mobile, 70px desktop) + padding
+          transition: 'margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1), padding-top 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+        }}
+      >
         {children || <Outlet />}
       </main>
     </div>
@@ -99,4 +75,3 @@ const Layout = ({ children }) => {
 };
 
 export default Layout;
-

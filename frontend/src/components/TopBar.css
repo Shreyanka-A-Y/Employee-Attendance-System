@@ -1,0 +1,170 @@
+/* TopBar Styles - Modern Breadcrumb Navigation */
+
+.topbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 70px;
+  z-index: 999;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(248, 244, 255, 0.9) 100%);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(139, 92, 246, 0.1);
+  box-shadow: 
+    0 4px 6px -1px rgba(0, 0, 0, 0.05),
+    0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.topbar-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 100%;
+  padding: 0 2rem;
+  max-width: 100%;
+}
+
+/* Left side: App Logo + Name */
+.topbar-left {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+}
+
+.topbar-logo {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.topbar-logo-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+  box-shadow: 0 2px 4px rgba(99, 102, 241, 0.3);
+}
+
+.topbar-app-name {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #1e293b;
+  white-space: nowrap;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+/* Right side: Current Page Name */
+.topbar-right {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.topbar-page-info {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: rgba(139, 92, 246, 0.08);
+  border-radius: 12px;
+  transition: all 0.2s ease;
+}
+
+.topbar-page-icon {
+  color: #6366f1;
+  flex-shrink: 0;
+}
+
+.topbar-page-name {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #6366f1;
+  white-space: nowrap;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+/* Mobile Styles */
+@media (max-width: 768px) {
+  .topbar {
+    margin-left: 0 !important;
+    height: 60px;
+  }
+
+  .topbar-content {
+    padding: 0 1rem;
+  }
+
+  .topbar-app-name {
+    font-size: 1rem;
+  }
+
+  .topbar-logo-icon {
+    width: 32px;
+    height: 32px;
+    font-size: 1rem;
+  }
+
+  .topbar-page-info {
+    padding: 0.4rem 0.75rem;
+  }
+
+  .topbar-page-name {
+    font-size: 0.875rem;
+  }
+
+  .topbar-page-icon {
+    width: 18px;
+    height: 18px;
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 480px) {
+  .topbar-content {
+    padding: 0 0.75rem;
+  }
+
+  .topbar-app-name {
+    font-size: 0.9375rem;
+  }
+
+  .topbar-page-name {
+    font-size: 0.8125rem;
+  }
+}
+
+/* Dark theme support */
+[data-theme='dark'] .topbar {
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.9) 0%, rgba(15, 23, 42, 0.9) 100%);
+  border-bottom: 1px solid rgba(139, 92, 246, 0.2);
+  box-shadow: 
+    0 4px 6px -1px rgba(0, 0, 0, 0.2),
+    0 2px 4px -1px rgba(0, 0, 0, 0.15);
+}
+
+[data-theme='dark'] .topbar-app-name {
+  color: #f1f5f9;
+}
+
+[data-theme='dark'] .topbar-page-info {
+  background: rgba(139, 92, 246, 0.15);
+}
+
+[data-theme='dark'] .topbar-page-name {
+  color: #a78bfa;
+}
+
+[data-theme='dark'] .topbar-page-icon {
+  color: #a78bfa;
+}
+
